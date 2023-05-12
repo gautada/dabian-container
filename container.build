@@ -52,7 +52,7 @@ RUN /usr/bin/apt update \
  # ** NETWORKING **
  && /usr/bin/apt install --yes bind9-dnsutils curl net-tools nmap ncat wget \
  # *** UTILS ***
- && /usr/bin/apt install --yes cron procps nano sudo tzdata \
+ && /usr/bin/apt install --yes cron jq nano procps sudo tzdata \
  # *** SHELL ***
  && /usr/bin/apt install --yes zsh \
  && /usr/bin/apt autoclean \
@@ -95,6 +95,7 @@ RUN /bin/mkdir -p /etc/container/health.d \
  && /bin/ln -fsv /usr/bin/container-health /usr/bin/container-readiness \
  && /bin/ln -fsv /usr/bin/container-health /usr/bin/container-startup 
 COPY debian.health /etc/container/health.d/debian.health
+COPY cron.health /etc/container/health.d/cron.health
 
 # ╭――――――――――――――――――――╮
 # │CONTAINER           │

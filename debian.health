@@ -4,34 +4,20 @@ __debian_stable_version() {
  RELEASE="$(curl --silent http://ftp.debian.org/debian/dists/stable/Release | head -4 | tail -1)"
  TAG="$(echo $RELEASE | awk -F ':' '{print $1}')"
  VERSION="$(echo $RELEASE | awk -F ' ' '{print $2}')"
- echo $RELEASE
- echo $TAG
+ # echo $RELEASE
+ # echo $TAG
  echo $VERSION
-}
-
-__debian_repo_version() {
- echo "Foo"
-}
-
-__debian_custom_repo_version() {
- echo "Boo"
 }
 
 __debian_running_version() {
  /bin/cat /etc/debian_version
 }
 
-__container_check_cron() {
- echo "Goo"
+__health_check() {
+ _health_assert "$(__debian_stable_version)" "$(__debian_running_version)" "Debian stable version must equal running version"
+ _health_assert "$(_docker_latest_version 'library/debian')" "$(__debian_running_version)" "Debian docker latest image version must equal running version"
+ _health_assert "$(_docker_latest_version 'gautada/debian')" "$(__debian_running_version)" "Debian container latest image version must equal running version"
 }
-
-constianer_health_check() {
- echo "Loo"
-}
-
-
-__debian_stable_version
-__debian_running_version
 
 
 
