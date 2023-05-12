@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# This is the default container health script. The default behavior is to loop 
+# through all of the scripts in `/etc/container/health.d` and execute.
+
+for script in /etc/container/health.d/*.health ; do
+ if [ -r "$script" ] ; then
+  echo "Checking container health with script: $script"
+  . "$script"
+ fi
+done
+unset script

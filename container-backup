@@ -1,0 +1,45 @@
+#!/bin/sh
+
+# New container backup.  Should securely create a tarball archive of all relevant container data in the /mnt/volumes/backup/<container> 
+# directory by calling the backup function
+
+echo "-------------------"
+
+BKUP="/tmp/backup"
+/bin/mkdir -p $BKUP
+cd $TEMP
+
+TEMP="$(/bin/mktemp --directory $BKUP/XXXXX)"
+# echo $TEMP
+/bin/mkdir -p $TEMP
+
+/bin/chown $(/usr/bin/id -un 1001):$(/usr/bin/id -un 1001) $TEMP
+cd $TEMP
+
+/bin/su $(/usr/bin/id -un 1001) -c ". /etc/container/backup ; app_backup"
+
+# pwd
+# echo "$BKUP/$HOSTNAME.tar"
+# echo "-------------------"
+# export
+# echo
+# echo
+
+ARCHIVE="$BKUP/$(echo $HOSTNAME).tgz"
+/bin/tar  --create --gzip --file=$ARCHIVE --verbose ./*
+
+if [ -f /mnt/volumes/backup/.backup ] ; then
+ echo "Backup lock is active"
+fi
+
+if [ -f /mnt/volumes/backup/.archive ] ; then
+ echo "Archive lock is active"
+fi
+
+/bin/touch /mnt/volumes/backup/.backup
+/bin/cp -v $ARCHIVE /mnt/volumes/backup/
+/bin/rm -f /mnt/volumes/backup/.backup
+/bin/rm -rf $BKUP
+echo "~~~~~~~~~~~~~~~~~~~"
+
+

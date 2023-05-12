@@ -1,0 +1,115 @@
+ARG DEBIAN_VERSION=11.7
+
+# ╭――――――――――――――――-――――――――――――――――――――――――――――-――――――――――――――――――――――――――――――――╮
+# │                                                                              │
+# │ CONTAINER                                                                    │
+# │                                                                              │
+# ╰――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――╯
+FROM debian:$DEBIAN_VERSION-slim
+
+# ╭――――――――――――――――――――╮
+# │ METADATA           │
+# ╰――――――――――――――――――――╯
+LABEL version="2022-11-17"
+LABEL source="https://github.com/gautada/debian-container.git"
+LABEL maintainer="Adam Gautier <adam@gautier.org>"
+LABEL description="Debian Linux base container for latest-slim."
+
+# ╭―――――――――――――――――――╮
+# │ CONFIG            │
+# ╰―――――――――――――――――――╯
+RUN /bin/mkdir -p /etc/container \
+# *** Timezone ***
+ && echo "America/New_York" > /etc/timezone \
+ && /bin/ln -fsv /usr/share/zoneinfo/$(cat /etc/timezone) /etc/localtime
+
+# ╭――――――――――――――――――――╮
+# │ VOLUMES            │
+# ╰――――――――――――――――――――╯
+RUN /bin/mkdir -p /mnt/volumes/configmaps \
+                  /mnt/volumes/container \
+                  /mnt/volumes/backup \
+                  /mnt/volumes/secrets/namespace \
+                  /mnt/volumes/secrets/container
+
+# ╭――――――――――――――――――――╮
+# │USER                │
+# ╰――――――――――――――――――――╯
+ARG USER=debian
+ARG ID=1001
+
+RUN /usr/sbin/groupadd --gid $ID $USER \
+ && /usr/sbin/useradd --create-home --gid $ID --shell /bin/zsh --uid $ID $USER \
+ && /bin/echo "$USER:$USER" | chpasswd \
+ && /bin/echo "# Default zshrc" > /home/$USER/.zshrc \
+ && /bin/chown -R $USER:$USER /mnt/volumes/container \
+ && /bin/chown -R $USER:$USER /mnt/volumes/backup
+
+# ╭――――――――――――――――――――╮
+# │ PACKAGES           │
+# ╰――――――――――――――――――――╯
+RUN /usr/bin/apt update \ 
+ # ** NETWORKING **
+ && /usr/bin/apt install --yes bind9-dnsutils curl net-tools nmap ncat wget \
+ # *** UTILS ***
+ && /usr/bin/apt install --yes cron procps nano sudo tzdata \
+ # *** SHELL ***
+ && /usr/bin/apt install --yes zsh \
+ && /usr/bin/apt autoclean \
+ && /usr/bin/apt clean
+
+# ╭―――――――――――――――――――╮
+# │ BACKUP            │
+# ╰―――――――――――――――――――╯
+COPY container-backup /usr/bin/container-backup
+RUN /bin/ln -fsv /mnt/volumes/container/backup /etc/container/backup  
+
+# ╭――――――――――――――――――――╮
+# │ ENTRYPOINT         │
+# ╰――――――――――――――――――――╯
+COPY container-entrypoint /usr/bin/container-entrypoint
+RUN /bin/ln -fsv /mnt/volumes/container/entrypoint /etc/container/entrypoint
+ENTRYPOINT ["/usr/bin/container-entrypoint"]
+
+# ╭――――――――――――――――――――╮
+# │ PRIVILEGE          │
+# ╰――――――――――――――――――――╯
+RUN /bin/ln -fsv /etc/container/privileges /etc/sudoers.d/privileges \
+ && /usr/sbin/groupadd --gid 999 privileged \ 
+ && /usr/sbin/adduser $USER privileged 
+
+# ╭――――――――――――――――――――╮
+# │ ENVIRONMENT        │
+# ╰――――――――――――――――――――╯
+# ENV ENV="/etc/profile"
+# COPY profile /etc/container/profile
+# RUN /bin/ln -fsv /etc/container/profile /etc/profile.d/container-profile.sh
+
+# ╭――――――――――――――――――╮
+# │HEALTH            │
+# ╰――――――――――――――――――╯
+COPY container-health /usr/bin/container-health
+COPY health /etc/container/health
+RUN /bin/mkdir -p /etc/container/health.d \ 
+ && /bin/ln -fsv /usr/bin/container-health /usr/bin/container-liveness \
+ && /bin/ln -fsv /usr/bin/container-health /usr/bin/container-readiness \
+ && /bin/ln -fsv /usr/bin/container-health /usr/bin/container-startup 
+COPY debian.health /etc/container/health.d/debian.health
+
+# ╭――――――――――――――――――――╮
+# │CONTAINER           │
+# ╰――――――――――――――――――――╯
+# For downstream change copy the following lines and change the user arg
+# ARG USER=<USER>
+# RUN /usr/sbin/usermod --login $USER --home /home/$USER --move-home debian
+# RUN /usr/sbin/groupmod --new-name USER debian
+# 
+# USER $USER
+# WORKDIR /home/$USER
+
+VOLUME /mnt/volumes/backup
+VOLUME /mnt/volumes/configmaps
+VOLUME /mnt/volumes/container
+VOLUME /mnt/volumes/secrets/namespace
+VOLUME /mnt/volumes/secrets/container
+EXPOSE 8080/tcp
