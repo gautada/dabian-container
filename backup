@@ -1,0 +1,6 @@
+#!/bin/sh
+
+app_backup() {
+ echo "DEFAULT backup of `/mnt/volumes/container` on $(/bin/date) by [$(/usr/bin/whoami)] to '$(pwd)'"
+ /bin/cp -rv /mnt/volumes/container/* ./
+}

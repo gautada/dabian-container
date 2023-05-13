@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  debian:
+    build:
+      args:
+        CONTAINER_VERSION: "11.7"
+        DEBIAN_VERSION: "11.7"
+      context: .
+      dockerfile: container.build
+      no_cache: true
+      tags:
+        - "gautada/debian:dev"
+        - "docker.io/gautada/debian:dev"
+    image: "debian:dev"
+    hostname: debian
+    volumes:
+      - "/mnt/volumes/container/Compose/Container:/mnt/volumes/container"
+      - "/mnt/volumes/container/Compose/Backup:/mnt/volumes/backup"
