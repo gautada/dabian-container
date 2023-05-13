@@ -7,10 +7,10 @@
 #             [gist](https://gist.github.com/gautada/f185700af585a50b3884ad10c2b02f98)
 
 
-app_version() {
+container_version() {
  cat /etc/debian_version
 }
 
-app_entrypoint() {
- /usr/bin/zsh
+container_entrypoint() {
+ /bin/echo "This is the default entrypoint. You should overload the 'container_entrypoint()' function."
 }

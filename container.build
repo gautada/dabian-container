@@ -68,7 +68,7 @@ RUN /bin/ln -fsv /mnt/volumes/container/backup /etc/container/backup
 # │ ENTRYPOINT         │
 # ╰――――――――――――――――――――╯
 COPY container-entrypoint /usr/bin/container-entrypoint
-RUN /bin/ln -fsv /mnt/volumes/container/entrypoint /etc/container/entrypoint
+COPY entrypoint /etc/container/entrypoint
 ENTRYPOINT ["/usr/bin/container-entrypoint"]
 
 # ╭――――――――――――――――――――╮
