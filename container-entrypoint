@@ -20,8 +20,8 @@ ENTRYPOINT_PARAMS="$@"
 /usr/bin/pgrep cron > /dev/null
 TEST=$?
 if [ $TEST -eq 1 ] ; then
- echo " [I] Launch cron daemon"
- /usr/sbin/cron
+ /bin/echo " [I] Launch cron daemon"
+ /usr/bin/sudo /usr/sbin/cron
  RTN=$?
  if [ $RTN -ne 0 ] ; then
   /bin/echo "Application (cron) failed to start"
