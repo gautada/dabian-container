@@ -48,15 +48,15 @@ RUN /usr/sbin/groupadd --gid $ID $USER \
 # ╭――――――――――――――――――――╮
 # │ PACKAGES           │
 # ╰――――――――――――――――――――╯
-RUN /usr/bin/apt update \ 
+RUN /usr/bin/apt-get update \ 
  # ** NETWORKING **
- && /usr/bin/apt install --yes bind9-dnsutils curl net-tools nmap ncat wget \
+ && /usr/bin/apt-get install --yes bind9-dnsutils curl net-tools nmap ncat wget \
  # *** UTILS ***
- && /usr/bin/apt install --yes cron jq nano procps sudo tzdata \
+ && /usr/bin/apt-get install --yes cron jq nano procps sudo tzdata \
  # *** SHELL ***
- && /usr/bin/apt install --yes zsh \
- && /usr/bin/apt autoclean \
- && /usr/bin/apt clean
+ && /usr/bin/apt-get install --yes zsh \
+ && /usr/bin/apt-get autoclean \
+ && /usr/bin/apt-get clean
 
 # ╭―――――――――――――――――――╮
 # │ BACKUP            │
