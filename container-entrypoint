@@ -8,35 +8,33 @@
 # file (which by default is a symlink to `/mnt/volumes/container/entrypoint`
 #
 
-echo
-echo
+/bin/echo
+/bin/echo "~~~~~~~~~~~~~~~~~~~~~~~~"
+/bin/echo
 
 ENTRYPOINT_PARAMS="$@"
 # . /etc/profile
 
-echo "Enter container($(cat /etc/debian_version) as [$(/usr/bin/whoami)])"
+/bin/echo "[I] Container ($HOSTNAME $(cat /etc/debian_version) as [$(/usr/bin/whoami)])"
 
-/usr/bin/pgrep crond > /dev/null
+/usr/bin/pgrep cron > /dev/null
 TEST=$?
 if [ $TEST -eq 1 ] ; then
- echo " - Launch cron"
- cron
+ /bin/echo " [I] Launch cron daemon"
+ /usr/bin/sudo /usr/sbin/cron
  RTN=$?
  if [ $RTN -ne 0 ] ; then
-  echo "Application (cron) failed to start"
-  return 3
+  /bin/echo "Application (cron) failed to start"
+  exit 1
  fi
 fi
  
 . /etc/container/entrypoint
-# if [ -z $ENTRYPOINT_PARAMS ] ; then
-#  echo "Launch application as detatched"
-#  app_entrypoint ENTRYPOINT_PARAMS >> /mnt/volumes/container/_log 2>&1 &
-# exec $ENTRYPOINT_PARAMS
-# else
-#  echo "Launch blocking application"
-#  app_entrypoint ENTRYPOINT_PARAMS 
-# fi
-
-# echo $ENTRYPOINT_PARAMS
-/usr/bin/zsh
+if [ -z $ENTRYPOINT_PARAMS ] ; then
+ /bin/echo " [I] Launch blocking application"
+ container_entrypoint "$ENTRYPOINT_PARAMS" 
+else
+ /bin/echo " [I] Launch application as detatched"
+ container_entrypoint "$ENTRYPOINT_PARAMS" >> /mnt/volumes/container/_log 2>&1 &
+ exec $ENTRYPOINT_PARAMS
+fi
