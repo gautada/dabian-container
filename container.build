@@ -128,13 +128,13 @@ EXPOSE 8080/tcp
 ARG USER=debian
 ARG ID=1001
 
-RUN /usr/sbin/groupadd --gid $ID $USER \
- && /usr/sbin/useradd --create-home --gid $ID --shell /bin/zsh --uid $ID $USER \
- && /usr/sbin/adduser $USER privileged \
- && /bin/echo "$USER:$USER" | chpasswd \
- # && /bin/echo "# Default zshrc" > /home/$USER/.zshrc \
- && /bin/chown -R $USER:$USER /mnt/volumes/container \
- && /bin/chown -R $USER:$USER /mnt/volumes/backup
+RUN /usr/sbin/groupadd --gid $ID $USER 
+RUN /usr/sbin/useradd --create-home --gid $ID --shell /bin/zsh --uid $ID $USER 
+RUN /usr/sbin/adduser $USER privileged 
+RUN /bin/echo "$USER:$USER" | chpasswd 
+RUN /bin/echo "# Default zshrc" > /home/$USER/.zshrc 
+RUN /bin/chown -R $USER:$USER /mnt/volumes/container 
+RUN /bin/chown -R $USER:$USER /mnt/volumes/backup
 
 # -- NOTE: Copy this segment for downstream containers --
 # For downstream change copy the following lines and change the user arg
