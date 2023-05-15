@@ -132,7 +132,7 @@ RUN /usr/sbin/groupadd --gid $ID $USER \
  && /usr/sbin/useradd --create-home --gid $ID --shell /bin/zsh --uid $ID $USER \
  && /usr/sbin/adduser $USER privileged \
  && /bin/echo "$USER:$USER" | chpasswd \
- && /bin/echo "# Default zshrc" > /home/$USER/.zshrc \
+ # && /bin/echo "# Default zshrc" > /home/$USER/.zshrc \
  && /bin/chown -R $USER:$USER /mnt/volumes/container \
  && /bin/chown -R $USER:$USER /mnt/volumes/backup
 
